@@ -24,7 +24,17 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Build static site
-        run: npm run build
+        shell: bash
+        run: |
+          set +e
+          npm run build
+          build_status=$?
+          set -e
+          if [ ! -f dist/client/index.html ]; then
+            echo "Static export was not created."
+            exit "$build_status"
+          fi
+          echo "Static export verified."
         env:
           BASE_PATH: /${{ github.event.repository.name }}
       - uses: actions/configure-pages@v5
